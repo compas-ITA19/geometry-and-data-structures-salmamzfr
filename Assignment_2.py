@@ -96,7 +96,7 @@ def traverse_boundary_to_boundary(mesh):
     """
     traverse the mesh from boundary to boundary in a "straight" line and visulize the results
     mesh: mesh data structure
-    return a list of ordered vertex keys for the path and the mesh plot with highlighted path (use plotter.show() to visualize))
+    return a list of ordered vertex keys for the path and the mesh plotter with highlighted path (use plotter.show() to visualize))
     """
     bound_keys=mesh.vertices_on_boundary()
     # randomly pick a boundary key
