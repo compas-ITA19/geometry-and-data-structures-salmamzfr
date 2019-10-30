@@ -23,12 +23,13 @@ def orthonormal_vectors(vec_1, vec_2):
     vec_1 & vec_2: list of three floats
     return a set of the three orthonormal vectors
     """
-    vec_cros=cross_vectors(vec_1, vec_2)
-    vec_list=normalize_vectors([vec_1, vec_2, vec_cros])
+    vec_cros_1=cross_vectors(vec_1, vec_2)
+    vec_cros_2=cross_vectors(vec_cros_1, vec_1)
+    vec_list=normalize_vectors([vec_1, vec_cros_1, vec_cros_2])
 
     return vec_list
 
-# print (orthonormal_vectors([1.0,1.0,2.0],[3.0,3.0,2.0]))
+# print (orthonormal_vectors([1.0, 1.0, 2.0], [3.0, 3.0, 2.0]))
 
 ########################## Geometry-2 ###########################
 
@@ -55,11 +56,7 @@ def polygon_area(pts_list):
     
     return poly_area
 
-print (polygon_area([[4.0,11.0,0.0],[23.0,19.0,0.0],[26.0,4.0,0.0],[13.0,0.0,0.0]]))
-from compas.geometry import Polygon
-from compas.geometry import area_polygon_xy
-polygon=([[4.0,11.0,0.0],[23.0,19.0,0.0],[26.0,4.0,0.0],[13.0,0.0,0.0]])
-print (area_polygon_xy(polygon))
+# print (polygon_area([[4.0, 11.0, 0.0], [23.0, 19.0, 0.0], [26.0, 4.0, 0.0], [13.0, 0.0, 0.0]]))
 
 ########################## Geometry-3 ###########################
 
@@ -90,9 +87,8 @@ def cross_product_numpy(arr_1, arr_2):
 
     return arr_cros
    
-# print (np.array([[1.0,0.0,3.0],[1.0,2.0,3.0],[2.0,4.0,3.0]]))
-# print (cross_product_numpy([[1.0,0.0,3.0],[1.0,2.0,3.0],[2.0,4.0,3.0]], [[1.0,1.0,3.0],[1.0,0.0,3.0],[1.0,2.0,3.0]]))
-# print (cross_product([[1.0,0.0,3.0],[1.0,2.0,3.0],[2.0,4.0,3.0]], [[1.0,1.0,3.0],[1.0,0.0,3.0],[1.0,2.0,3.0]]))
+# print (cross_product_numpy([[1.0, 0.0, 3.0], [1.0, 2.0, 3.0],[2.0, 4.0, 3.0]], [[1.0, 1.0, 3.0],[1.0, 0.0, 3.0],[1.0, 2.0, 3.0]]))
+# print (cross_product([[1.0, 0.0, 3.0], [1.0, 2.0, 3.0],[2.0, 4.0, 3.0]], [[1.0, 1.0, 3.0],[1.0, 0.0, 3.0],[1.0, 2.0, 3.0]]))
 
 ########################## Data Structures-1 ###########################
 
