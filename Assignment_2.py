@@ -42,19 +42,24 @@ def polygon_area(pts_list):
     n = len(pts_list)
     sum_coor=[sum(coor) for coor in zip(*pts_list)]
     c_pt=[coor/ n for coor in sum_coor]
+
     # caclulate the area
     poly_area=0.0
     for ind in range(len(pts_list)-1):
         vec_1=subtract_vectors(c_pt, pts_list[ind])
         vec_2=subtract_vectors(c_pt, pts_list[ind+1])
-        poly_area+=0.5*abs(cross_vectors(vec_1, vec_2)[2])
+        poly_area+=0.5*length_vector(cross_vectors(vec_1, vec_2))
     vec_1=vec_2
     vec_2=subtract_vectors(pts_list[0], c_pt)
-    poly_area+=0.5 *length_vector(cross_vectors(vec_1, vec_2))
+    poly_area+=0.5*length_vector(cross_vectors(vec_1, vec_2))
     
     return poly_area
 
-# print (polygon_area([[0.0,0.0,0.0],[0.0,2.0,0.0],[2.0,2.0,0.0],[2.0,0.0,0.0]]))
+print (polygon_area([[4.0,11.0,0.0],[23.0,19.0,0.0],[26.0,4.0,0.0],[13.0,0.0,0.0]]))
+from compas.geometry import Polygon
+from compas.geometry import area_polygon_xy
+polygon=([[4.0,11.0,0.0],[23.0,19.0,0.0],[26.0,4.0,0.0],[13.0,0.0,0.0]])
+print (area_polygon_xy(polygon))
 
 ########################## Geometry-3 ###########################
 
@@ -95,64 +100,55 @@ def traverse_boundary_to_boundary(mesh):
     """
     traverse the mesh from boundary to boundary in a "straight" line and visulize the results
     mesh: mesh data structure
-    return a list of ordered vertex keys and plot the solution
+    return a list of ordered vertex keys for the path and the mesh plot with highlighted path (use plotter.show() to visualize))
     """
     bound_keys=mesh.vertices_on_boundary()
     # randomly pick a boundary key
     ind=randrange(len(bound_keys))  
     key=bound_keys[ind]
     pick_keys=[key]
-
-    print(pick_keys)
-    #non-corner keys
+    prev_fkeys=set()
+    
+    # non-corner vertices
     if mesh.vertex_degree(key)>2: 
         f_keys=mesh.vertex_faces(key)
-        f_vers=[]
-        for f_key in f_keys:
-            f_vers.append((mesh.face_vertices(f_key)))
-        int_keys=set.intersection(*map(set,f_vers))
-        next_key=list(int_keys-set(pick_keys))[0]
-        pick_keys.append(next_key)        
-        
-        print (f_vers)
-        print (int_keys)
-        print (next_key)
-        print (pick_keys)
+        adj_keys=mesh.face_adjacency_vertices(f_keys[0], f_keys[1])
+        next_key=list(set(adj_keys)-set(pick_keys))[0]
+        pick_keys.append(next_key) 
+        prev_fkeys.update(f_keys)
 
         while next_key not in bound_keys:
-
             f_keys=mesh.vertex_faces(next_key)
-            f_vers=[]
-            for f_key in f_keys:
-                f_vers.append((mesh.face_vertices(f_key)))
-            int_keys=set.intersection(*map(set,f_vers))
-            next_key=int_keys-set(pick_keys)
-            print (next_key)
-
-            print (f_vers)
-            print (int_keys)
-            # print (next_key)
-            # print (pick_keys)
-            break
-            # pick_keys.append(next_key)
-        
-
-        
-
-
-
-        # print mesh.face_vertices(fkey)
-
-    # plotter = MeshPlotter(mesh, figsize=(8, 5))
-
-    # plotter.draw_vertices(text='key', radius=0.01)
-    # plotter.draw_edges()
+            f_keys=list(set(f_keys)-prev_fkeys)
+            adj_keys=mesh.face_adjacency_vertices(f_keys[0], f_keys[1])
+            next_key=list(set(adj_keys)-set(pick_keys))[0]
+            pick_keys.append(next_key) 
+            prev_fkeys.update(f_keys)
     
-    # plotter.show()
+    # corner vertices
+    elif mesh.vertex_degree(key)==2:
+        f_keys=mesh.vertex_faces(key)
+        # next_key=mesh.face_vertex_descendant(f_keys[0], key)
+        next_key=mesh.face_vertex_ancestor(f_keys[0], key)
+        pick_keys.append(next_key)
+        prev_fkeys.update(f_keys)
 
+        while mesh.vertex_degree(next_key)!=2:
+            f_keys=mesh.vertex_faces(next_key)
+            f_keys=list(set(f_keys)-prev_fkeys)
+            next_key=mesh.face_vertex_ancestor(f_keys[0], next_key)
+            pick_keys.append(next_key)
+            prev_fkeys.update(f_keys)
 
+    # mesh plotter with highlighted path
+    plotter = MeshPlotter(mesh, figsize=(8, 5))
+    plotter.draw_vertices(text='key', radius=0.01)
+    plotter.draw_edges()
+    plotter.highlight_path(pick_keys, edgecolor=(255, 0, 0), edgetext=None, edgewidth=1.0)
 
+    return pick_keys, plotter
 
-
-mesh = Mesh.from_obj(compas.get('faces.obj'))
-traverse_boundary_to_boundary(mesh)
+# mesh = Mesh.from_obj(compas.get('faces.obj'))
+# pick_keys, plotter = traverse_boundary_to_boundary(mesh)
+# print (pick_keys)
+# plotter.show()
